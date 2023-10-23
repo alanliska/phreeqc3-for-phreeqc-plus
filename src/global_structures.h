@@ -5,8 +5,8 @@
 /* ----------------------------------------------------------------------
  *   #define DEFINITIONS
  * ---------------------------------------------------------------------- */
-#if !defined(NAN)
-#define NAN nan("1")
+#ifndef NAN
+#   define NAN -99999999
 #endif
 #define MISSING -9999.999            
 #include "NA.h"   /* NA = not available */
@@ -715,7 +715,6 @@ public:
 		dw_a2 = 0;
 		dw_a_visc = 0;   // viscosity correction of SC
 		dw_t_SC = 0;     // contribution to SC, for calc'ng transport number with BASIC
-		dw_t_visc = 0;   // contribution to viscosity
 		dw_corr = 0;	 // dw corrected for TK and mu
 		erm_ddl = 0;     // enrichment factor in DDL
 		equiv = 0;       // equivalents in exchange species
@@ -777,7 +776,6 @@ public:
 	LDBLE dw_a2;
 	LDBLE dw_a_visc;
 	LDBLE dw_t_SC;
-	LDBLE dw_t_visc;
 	LDBLE dw_corr;
 	LDBLE erm_ddl;
 	LDBLE equiv;

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <cmath>
+#include <math.h>
 #include <stdlib.h>
 #include "Phreeqc.h"
 #include "phqalloc.h"
@@ -142,7 +142,7 @@ cl1(int k, int l, int m, int n,
 /*        AT LEAST NKLMD COLUMNS USED FOR WORKSPACE. */
 /* S      INTEGER ARRAY OF SIZE AT LEAST KLMD, USED FOR */
 /*        WORKSPACE. */
-/*      real(kind=8) DBLE */
+/*      DOUBLE PRECISION DBLE */
 /*      REAL */
 
 /* INITIALIZATION. */

@@ -29,9 +29,9 @@ typedef unsigned char boolean;
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <cmath>
+#include <math.h>
 #include <errno.h>
-#include <cfloat>
+#include <float.h>
 #include "phrqtype.h"
 #include "cvdense.h"	
 #include "runner.h"
@@ -283,12 +283,12 @@ public:
 	int sum_diffuse_layer(cxxSurfaceCharge* surface_charge_ptr1);
 	int calc_all_donnan(void);
 	int calc_init_donnan(void);
-	LDBLE calc_psi_avg(cxxSurfaceCharge * charge_ptr, LDBLE surf_chrg_eq, LDBLE nDbl, std::vector<LDBLE> &zcorr);
 	LDBLE g_function(LDBLE x_value);
 	LDBLE midpnt(LDBLE x1, LDBLE x2, int n);
 	void polint(LDBLE* xa, LDBLE* ya, int n, LDBLE xv, LDBLE* yv,
 		LDBLE* dy);
 	LDBLE qromb_midpnt(cxxSurfaceCharge* charge_ptr, LDBLE x1, LDBLE x2);
+	LDBLE calc_psi_avg(cxxSurfaceCharge* charge_ptr, LDBLE surf_chrg_eq);
 
 	// inverse.cpp -------------------------------
 	int inverse_models(void);
@@ -481,7 +481,7 @@ public:
 
 	// parse.cpp -------------------------------
 	int check_eqn(int association);
-	int get_charge(char* charge, size_t charge_size, LDBLE* z);
+	int get_charge(char* charge, LDBLE* z);
 	int get_elt(const char** t_ptr, std::string& element, int* i);
 	int get_elts_in_species(const char** t_ptr, LDBLE coef);
 	int get_num(const char** t_ptr, LDBLE* num);
@@ -996,7 +996,6 @@ public:
 	int reformat_surf(const char* comp_name, LDBLE fraction, const char* new_comp_name,
 		LDBLE new_Dw, int cell);
 	LDBLE viscosity(void);
-	LDBLE calc_f_visc(const char *name);
 	LDBLE calc_vm_Cl(void);
 	int multi_D(LDBLE DDt, int mobile_cell, int stagnant);
 	LDBLE find_J(int icell, int jcell, LDBLE mixf, LDBLE DDt, int stagnant);
@@ -1594,12 +1593,6 @@ protected:
 	int initial_solution_isotopes;
 	std::vector<class calculate_value*> calculate_value;
 	std::map<std::string, class calculate_value*> calculate_value_map;
-public:
-	std::map<std::string, class calculate_value*>&  GetCalculateValueMap() 
-	{
-		return this->calculate_value_map;
-	}
-protected:
 	std::vector<class isotope_ratio*> isotope_ratio;
 	std::map<std::string, class isotope_ratio*> isotope_ratio_map;
 	std::vector<class isotope_alpha*> isotope_alpha;
@@ -1853,12 +1846,12 @@ isfinite handling
 #  if __GNUC__ && (__cplusplus >= 201103L)
 #    define PHR_ISFINITE(x) std::isfinite(x)
 #  else
-#  define PHR_ISFINITE(x) std::isfinite(x) /* changed when <math.h> was changed to <cmath> */
+#  define PHR_ISFINITE(x) isfinite(x)
 #  endif
 #elif defined(HAVE_FINITE)
 #  define PHR_ISFINITE(x) finite(x)
 #elif defined(HAVE_ISNAN)
-#  define PHR_ISFINITE(x) ( ((x) == 0.0) || ((!std::isnan(x)) && ((x) != (2.0 * (x)))) )
+#  define PHR_ISFINITE(x) ( ((x) == 0.0) || ((!isnan(x)) && ((x) != (2.0 * (x)))) )
 #else
 #  define PHR_ISFINITE(x) ( ((x) == 0.0) || (((x) == (x)) && ((x) != (2.0 * (x)))) )
 #endif
@@ -2088,43 +2081,3 @@ char* _string_duplicate(const char* token, const char* szFileName, int nLine);
 #endif
 
 #endif //_INC_UTILITIES_NAMESPACE_H
-
-#ifndef _INC_MISSING_SNPRINTF_H
-#define _INC_MISSING_SNPRINTF_H
-
-// Section _INC_MISSING_SNPRINTF_H is based on
-// https://stackoverflow.com/questions/2915672/snprintf-and-visual-studio-2010
-
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-
-#include <stdarg.h>
-
-#define snprintf c99_snprintf
-#define vsnprintf c99_vsnprintf
-
-__inline int c99_vsnprintf(char *outBuf, size_t size, const char *format, va_list ap)
-{
-    int count = -1;
-
-    if (size != 0)
-        count = _vsnprintf_s(outBuf, size, _TRUNCATE, format, ap);
-    if (count == -1)
-        count = _vscprintf(format, ap);
-
-    return count;
-}
-
-__inline int c99_snprintf(char *outBuf, size_t size, const char *format, ...)
-{
-    int count;
-    va_list ap;
-
-    va_start(ap, format);
-    count = c99_vsnprintf(outBuf, size, format, ap);
-    va_end(ap);
-
-    return count;
-}
-#endif // defined(_MSC_VER) && (_MSC_VER < 1900)
-
-#endif //_INC_MISSING_SNPRINTF_H

@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <ctype.h>
-#include <cmath>
+#include <math.h>
 #include <setjmp.h>
 #include "phrqtype.h"
 #include "PHRQ_base.h"
@@ -79,7 +79,6 @@ typedef struct tokenrec
 //#ifdef PHREEQCI_GUI
 	size_t n_sz;
 	char *sz_num;
-	size_t sp_sz;
 //#endif
 } tokenrec;
 
@@ -337,7 +336,6 @@ public:
 		toktotmol,
 		toktotmoles,
 		toktrim,
-		tokf_visc,
 		tokviscos,
 		tokviscos_0,
 		tokvm,

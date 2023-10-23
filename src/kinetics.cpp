@@ -115,7 +115,11 @@ calc_kinetic_reaction(cxxKinetics *kinetics_ptr, LDBLE time_step)
 						kinetics_comp_ptr->Get_rate_name().c_str());
 				error_msg(error_string, STOP);
 			}
-			if (std::isnan(rate_moles))
+#ifdef NPP
+			if (isnan(rate_moles))
+#else
+			if (rate_moles == NAN)
+#endif
 			{
 				error_string = sformatf( "Moles of reaction not SAVEed for %s.",
 						kinetics_comp_ptr->Get_rate_name().c_str());
@@ -1071,7 +1075,7 @@ rk_kinetics(int i, LDBLE kin_time, int use_mix, int nsaver,
 		}
 		{
 			char str[MAX_LENGTH];
-			snprintf(str, sizeof(str), "RK-steps: Bad%4d. OK%5d. Time %3d%%", step_bad,
+			sprintf(str, "RK-steps: Bad%4d. OK%5d. Time %3d%%", step_bad,
 					step_ok, (int) (100 * h_sum / kin_time));
 			status(0, str, true);
 		}

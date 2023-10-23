@@ -59,7 +59,7 @@
 
 
 #include <stdio.h>
-#include <cmath>
+#include <math.h>
 #include "sundialsmath.h"
 #include "sundialstypes.h"
 

@@ -567,7 +567,7 @@ get_token(const char** eqnaddr, std::string& string, LDBLE* l_z, int* l)
 		/*
 		 *   Charge has been written, now need to check if charge has legal format
 		 */
-		if (get_charge(charge, MAX_LENGTH, l_z) == OK)
+		if (get_charge(charge, l_z) == OK)
 		{
 			string.append(charge);
 		}
@@ -1193,37 +1193,37 @@ status(int count, const char *str, bool rk_string)
 			{
 				stdstr = str;
 			}
-			snprintf(sim_str, sizeof(sim_str), "\rSimulation %d.", simulation);
-			snprintf(state_str, sizeof(state_str), " ");
-			snprintf(spin_str, sizeof(spin_str), " ");
+			sprintf(sim_str, "\rSimulation %d.", simulation);
+			sprintf(state_str, " ");
+			sprintf(spin_str, " ");
 			switch (state)
 			{
 			default:
 				break;
 			case INITIAL_SOLUTION:
-				snprintf(state_str, sizeof(state_str), "Initial solution %d.", use.Get_solution_ptr()->Get_n_user());
+				sprintf(state_str, "Initial solution %d.", use.Get_solution_ptr()->Get_n_user());
 				break;
 			case INITIAL_EXCHANGE:
-				snprintf(state_str, sizeof(state_str), "Initial exchange %d.", use.Get_exchange_ptr()->Get_n_user());
+				sprintf(state_str, "Initial exchange %d.", use.Get_exchange_ptr()->Get_n_user());
 				break;
 			case INITIAL_SURFACE:
-				snprintf(state_str, sizeof(state_str), "Initial surface %d.", use.Get_surface_ptr()->Get_n_user());
+				sprintf(state_str, "Initial surface %d.", use.Get_surface_ptr()->Get_n_user());
 				break;
 			case INVERSE:
-				snprintf(state_str, sizeof(state_str), "Inverse %d. Models = %d.", use.Get_inverse_ptr()->n_user, count);
+				sprintf(state_str, "Inverse %d. Models = %d.", use.Get_inverse_ptr()->n_user, count);
 				break;
 			case REACTION:
 				if (use.Get_kinetics_in() == TRUE)
 				{
-					snprintf(state_str, sizeof(state_str), "Kinetic step %d.", reaction_step);
+					sprintf(state_str, "Kinetic step %d.", reaction_step);
 				}
 				else
 				{
-					snprintf(state_str, sizeof(state_str), "Reaction step %d.", reaction_step);
+					sprintf(state_str, "Reaction step %d.", reaction_step);
 				}
 				break;
 			case ADVECTION:
-				snprintf(state_str, sizeof(state_str), "Advection, shift %d.", advection_step);
+				sprintf(state_str, "Advection, shift %d.", advection_step);
 				break;
 			}
 			spinner++;
