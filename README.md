@@ -1,29 +1,28 @@
-# PHREEQC
+# This is the PHREEQC fork used in the mobile app PHREEQC plus
 
-#### This is the PHREEQC fork used in the mobile app PHREEQC plus ####
-
-# Changes in this fork #
+## Changes in this fork
 
 * the working directory is /data/data/cz.p/files/ (PHREEQC plus app)
 * added the stamp defining the release
 
-# Compilation #
+## Compilation
 
-set paths to source directories and to Release directory (create if not present)
-add entry -> ANDROID_ABI arm64-v8a, armeabi-v7a, x86_64, x86 (the desired architecture)
-add entry -> ANDROID_NDK path to Android NDK r10e
-configure - choose cmake toolchain
-tick PHREEQC_USE_GMP
-configure
-fill in the red fields - path to gmp.h and libgmp.a for the same architecture
-configure
-generate
-open the Release directory, fild all flags.make and link.txt
-add -pie to all these file
-cd Release
-mingw32-make (or make - in WSL)
+* set paths to source directories and to Release directory (create if not present)
+* add entry -> ANDROID_ABI arm64-v8a, armeabi-v7a, x86_64, x86 (the desired architecture)
+* add entry -> ANDROID_NDK path to Android NDK r10e
+* configure - choose cmake toolchain
+* tick PHREEQC_USE_GMP
+* configure
+* fill in the red fields - path to gmp.h and libgmp.a for the same architecture
+* configure
+* generate
+* open the Release directory, fild all flags.make and link.txt
+* add -pie to all these file
+* cd Release & mingw32-make (or make - in WSL)
 
-####
+# ORIGINAL DESCRIPTION:
+
+# PHREEQC
 
 ## Description
 
