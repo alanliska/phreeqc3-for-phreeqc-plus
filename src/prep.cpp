@@ -1980,14 +1980,15 @@ get_list_master_ptrs(const char* cptr, class master *master_ptr)
  *   Output: space is allocated and a list of master species pointers is
  *           returned.
  */
-	int j, l, count_list;
+	//int j, l, count_list;
+	int j, l;
 	char token[MAX_LENGTH];
 	std::vector<class master*> master_ptr_list;
 	class master *master_ptr0;
 /*
  *   Make list of master species pointers
  */
-	count_list = 0;
+	//count_list = 0;
 	//master_ptr_list = unknown_alloc_master();
 	master_ptr0 = master_ptr;
 	if (master_ptr0 == master_ptr->s->primary)
@@ -2147,7 +2148,8 @@ mb_for_species_aq(int n)
  *                             by coef, usually moles.
  *        mb_unknowns.coef - coefficient of s[n] in equation or relation
  */
-	int i, j;
+	//int i, j;
+	int i;
 	class master *master_ptr;
 	class unknown *unknown_ptr;
 
@@ -2223,7 +2225,7 @@ mb_for_species_aq(int n)
  */
 	if (use.Get_surface_ptr() != NULL && s[n]->type < H2O && dl_type_x != cxxSurface::NO_DL)
 	{
-		j = 0;
+		//j = 0;
 		for (i = 0; i < count_unknowns; i++)
 		{
 			if (x[i]->type == SURFACE_CB)
@@ -2235,7 +2237,7 @@ mb_for_species_aq(int n)
 
 				store_mb_unknowns(unknown_ptr, s_diff_layer[n][charge_ptr->Get_name()].Get_g_moles_address(),
 								  s[n]->z, s_diff_layer[n][charge_ptr->Get_name()].Get_dg_g_moles_address());
-				j++;
+				//j++;
 			}
 		}
 	}
@@ -3995,6 +3997,7 @@ calc_PR(std::vector<class phase *> phase_ptrs, LDBLE P, LDBLE TK, LDBLE V_m)
 			phi = B_r * (rz - 1) - log(rz - B) + A / (2.828427 * B) * (B_r - 2.0 * phase_ptr->pr_aa_sum2 / a_aa_sum) *
 				log((rz + 2.41421356 * B) / (rz - 0.41421356 * B));
 			//phi = (phi > 4.44 ? 4.44 : (phi < -3 ? -3 : phi));
+			phi = (phi > 4.44 ? 4.44 : (phi < -4.6 ? -4.6 : phi));
 			//if (phi > 4.44)
 			//	phi = 4.44;
 		}
@@ -5410,8 +5413,15 @@ k_temp(LDBLE tc, LDBLE pa) /* pa - pressure in atm */
  *  Calculates log k's for all species and pure_phases
  */
 
-	if (tc == current_tc && pa == current_pa && ((fabs(mu_x - current_mu) < 1e-3 * mu_x) || !mu_terms_in_logk))
-		return OK;
+	// if (tc == current_tc && pa == current_pa && ((fabs(mu_x - current_mu) < 1e-3 * mu_x) || !mu_terms_in_logk))
+	// 	return OK;
+	if (tc != current_tc) goto proceed;
+	if (pa != current_pa) goto proceed;
+	if (fabs(mu_x - current_mu) > 1e-3 * mu_x) goto proceed;
+	if (mu_terms_in_logk) goto proceed;
+	return OK;
+
+proceed:
 
 	int i;
 	LDBLE tempk = tc + 273.15;

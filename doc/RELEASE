@@ -1,4 +1,437 @@
+Version @PHREEQC_VER@: @PHREEQC_DATE@
+  	-----------------
+	November 15, 2023
+  	-----------------
+	PHREEQC programs: Fixed a couple malloc checks, some compiler warnings, and removed
+	some deprecated calls to strcpy and strcat.
+	
+  	-----------------
+	November 5, 2023
+  	-----------------
+	PHREEQC programs: Automatic testing was expanded to include MPI and additional compilers.
+
+  	-----------------
+	November 1, 2023
+  	-----------------
+	PHREEQC: Logical statement in k_temp was modified to work with Intel optimization.
+	The statement at the beginning of the routine was not handled correctly when some 
+	values were NaN. 
+
+  	-----------------
+	August 29, 2023
+  	-----------------
+	PhreeqcRM: Fixed bug in memory allocation for selected output. One array accumulated lines 
+	indefinitely, leading to ever increasing memory use. Memory use should now be relatively
+	constant once all selected output has been defined and used. 
+
+  	-----------------
+	June 1, 2023
+  	-----------------	
+	Finalizing a Python version of PhreeqcRM that includes the BMI capabilities.
+	Methods are documented in Python style and two test cases are available, one
+	of which uses every Python method that is available. 
+
+  	-----------------
+	May 22, 2023
+  	-----------------
+	PhreeqcRM: Revised all F90 methods that return arrays to use allocatable arrays,
+	so that, getter arrays are automatically dimensioned to the correct sizes
+		
+  	-----------------
+	May 22, 2023
+  	-----------------
+	PHREEQC: (See https://hydrochemistry.eu/ph3/release.html for html version of changes.)
+	Added Basic function f_visc("H+") that returns the fractional contribution of a species to 
+	viscosity of the solution when parameters are defined for the species with -viscosity. 
+	Actually, it gives the contribution of the species to the B and D terms in the Jones-Dole 
+	eqution, assuming that the A term is small. The fractional contribution can be negative, for 
+	example f_visc("K+") is usually smaller than zero.
+	
+	Bug-fix: High T/P water phi became too small. Now limit how small phi of water can be
+	so that gas phase has reasonable H2O(g). 
+
+	Bug-fix: When -Vm parameters of SOLUTION_SPECIES were read after -viscosity parameters, the 
+	first viscosity parameter was set to 0.
+
+	Defined -analytical_expression and -gamma for Na2SO4, K2SO4 and MgSO4 and Mg(SO4)22- species in 
+	PHREEQC.dat, fitting the activities from pitzer.dat from 0 - 200 °C, and the solubilities of 
+	mirabilite/thenardite (Na2SO4), arcanite (K2SO4), and epsomite, hexahydrite, kieserite (MgSO4 
+	and new species Mg(SO4)22-). The parameters for calculating the apparent volume (-Vm) and the 
+	diffusion coefficients (-Dw) of the species were adapted using measured data of density and 
+	conductance (SC).
+
+	Removed the NaCO3- species in PHREEQC.dat since they are not necessary for the calculation of 
+	the specific conductance (SC) and their origin is unknown. Defined parameters in the 
+	-analytical_expression, -gamma, -dw, -Vm and -viscosity for the NaHCO3 species in PHREEQC.dat, 
+	using the data in Appelo, 2015, Appl. Geochem. 55, 62-71. (These data were used for defining 
+	interaction parameters in pitzer.dat.) The parameters for the apparent volume (-Vm), the 
+	diffusion coefficient (-Dw) and the viscosity of CO32- and HCO3- were adapted using measured 
+	data of density, conductance and viscosity of binary solutions.
+
+	The viscosity of the solution at P, T is now calculated and printed in the output file, and can 
+	be retrieved in Basic programs with the function viscos (in previous versions, viscos returned 
+	the viscosity of pure water at P, T).
+
+	The calculation uses a modified Jones-Dole equation which sums the contributions of individual 
+	solutes:
+
+		eta / eta0 = 1 + A sqrt(0.5 sum(zi*mi)) + sum fan (Bi*mi + Di*mi*ni),
+		
+	where eta is the viscosity of the solution (mPa s), eta0 is viscosity of pure water at the 
+	temperature and pressure of the solution, mi is the molality of species i, made dimensionless 
+	by dividing by 1 molal, and zi is the absolute charge number. A is derived from Debye-Hückel 
+	theory, and fan, B, D and n are coefficients that incorporate volume, ionic strength and 
+	temperature effects. The coefficients are:
+
+		B = b0 + b1 exp(-b2 tC)
+		
+	where b0, b1, and b2 are coefficients, and tC is the temperature in ºC. The temperature is 
+	limited to 200°C.
+
+		fan = (2 - tan * Van / VCl-)
+		
+	for anions, with tan a coefficient and Van the P, T and I dependent, apparent volume of the 
+	anion relative to the one of Cl-, which is used as reference species. For cations, fan = 1 
+	and tan need not be defined.
+
+		D = d1 exp(-d2 tC)
+	where d1 and d2 are coefficients.
+
+		n = ((1 + fI)^d3 + ((zi^2 + zi) / 2 * mi)^d3 / (2 + fI)
+		
+	where fI averages ionic strength effects and d3 is a parameter.
+	The coefficients are fitted on measured viscosities of binary solutions and entered 
+	with item -viscosity under keyword SOLUTION_SPECIES, for example for H+:
+
+		  SOLUTION_SPECIES
+		  H+ = H+
+		  -viscosity 9.35e-2 -8.31e-2 2.487e-2 4.49e-4 2.01e-2 1.570    0
+		  #           b0       b1       b2      d1       d2      d3     tan
+		  
+	When the solute concentrations are seawater-like or higher, the viscosity is different 
+	from pure water (see figure at). To obtain a valid model for natural waters with phreeqc.dat, 
+	the complexes of SO42- with the major cations were redefined, as noted above.
+	The A parameter in the Jones-Dole equation needs temperature dependent diffusion coefficients of the species, and therefore the parameters for calculating the I and T dependency of the diffusion coefficients (-dw parameters of SOLUTION_SPECIES) were refitted for SO42- and CO32- species.
+	Example files are in c:\phreeqc\viscosity. 	
+
+	Implicit calculations with option -fix_current will now account for changing concentrations in 
+	the boundary solutions of the column.
+
+	Activated the print of statements defined in USER_PRINT when the initial EXCHANGE, SURFACE and 
+	GAS_PHASE are calculated.
+
+	Changed the dw_t parameter for CO3-2 to 30 (was 0) and for HCO3- to -150 (was 0) to better fit 
+	McCleskey's data
+
+	Bug fix: removed the factor (TK / 298.15) from the calculation of the temperature dependence of 
+	the diffusion coefficient. For an example, see the calculation of Dw(TK) of H+ in the next 
+	paragraph.
+
+	Bug fixes in printing/punching of diffusion coefficients with diff_c and setdiff_c: the numbers 
+	are now corrected for I and T effects when the appropriate factors are defined in keyword 
+	SOLUTION_SPECIES, item -dw. For example:
+
+	H+ = H+
+		-gamma 9.0 0
+		-dw 9.31e-9 1000 0.46 1e-10 # The dw parameters are defined in Appelo, 2017, CCR 101, 102-113.
+
+	It will set Dw(TK) = 9.31e-9 * exp(1000 / TK - 1000 / 298.15) * viscos_0_25 / viscos_0_tc
+	and Dw(I) = Dw(TK) * exp(-0.46 * DH_A * |zi| * I 0.5 / (1 + DH_B * I 0.5 * 1e-10 / (1 + I 0.75))),
+
+	where viscos_0_25 is the viscosity of pure water at 25 °C, viscos_0_tc is the viscosity of pure 
+	water at the temperature of the solution. DH_A and DH_B are Debye-Hückel parameters, 
+	retrievable with PHREEQC Basic.
+
+
+	The temperature correction is always applied in multicomponent, diffusive transport and for 
+	calculating the viscosity.
+
+	The ionic strength correction is for electromigration calculations (Appelo, 2017, CCR 101, 102). The correction is applied when the option is set true in TRANSPORT, item -multi_D:
+		-multi_d true 1e-9 0.3 0.05 1.0 true # multicomponent diffusion
+		
+	# true/false, default tracer diffusion coefficient (Dw = 1e-9 m2/s) in water at 25 °C (used in 
+	case -dw is not defined for a species), porosity (por = 0.3), limiting porosity (0.05) below 
+	which diffusion stops, exponent n (1.0) used in calculating the porewater diffusion coefficient 
+	Dp = Dw * por^n, true/false: correct Dw for ionic strength (false by default). 
+
+  	-----------------
+	May 19, 2023
+  	-----------------
+	PhreeqcRM:
+	Changed documentation of GetDensity and related functions to GetDensityCalculated. 
+		(GetDensity still exists for backward compatibility.)
+	Changed documentation of SetDensity and related functions to SetDensityUser. 
+		(SetDensity still exists for backward compatibility.)
+	
+	Density is used to convert user-model concentrations to module solution definitions only if the
+	units of the user-model concentrations are specified to be parts per million. The density specified by 
+	SetDensityUser is used by SetConcentrations to convert from per kg of solution to 
+	per L of solution. For GetConcentrations, two options are available to convert from module solutions 
+	to user-model concentrations, depending on the value used for the method SetUseSolutionDensityVolume: 
+	(1) the module-calculated density is used to convert from the calculated volume of solution
+	to the mass (kg) of solution, or (2) the user-specified value of density is used to make the conversion.
+	Again, density is only used if the user-model concentration units are ppm.
+	
+	The change in method names is intended to emphasize the difference between the user-specified densities
+	and the module-calculated densities. 
+	
+	Changed documentation of GetSaturation and related functions to GetSaturationCalculated.
+		(GetSaturation still exists for backward compatibility.)
+	Changed documentation of SetSaturation and related functions to SetSaturationUser.
+		(SetSaturation still exists for backward compatibility.)
+	
+	The values specified by SetSaturationUser are used to convert user-model concentrations to module solution definitions.
+	For SetConcentrations, the volume of solution is calculated to be the user-specified saturation * porosity * 
+	representative volume. For GetConcentrations, two options are available to determine the solution volume, depending 
+	on the value specified for SetUseSolutionDensityVolume: (1) the solution volume is calculated by the reaction module 
+	and used to convert to user-model concentrations, or (2) the solution volume is again calculated by 
+	user-specified saturation * porosity * representative volume, and those values are used to convert to user-model
+	concentrations. In either case, the values returned by GetSaturationCalculated are the calculated solution volume divided
+	by (porosity * representative volume).
+		
+	The change in method names is intended to emphasize the difference between the user-specified saturations and 
+	and the module-calculated saturations.
+	
+  	-----------------
+	April 16, 2023
+  	-----------------
+	PhreeqcRM: Added new methods to simplify getting and setting component and 
+	aqueous species concentrations.
+	
+	New methods:
+	GetIthConcentration(int i, std::vector<double>& c)--Gets the ith component concentration as
+		of the last RunCells calculation. Total number of components is retrieved with GetComponentCount.
+	GetIthSpeciesConcentration(int i, std::vector<double>& c)--Gets the ith aqueous species concentration as
+		of the last RunCells calculation. Total number of aqueous species is retrieved with GetSpeciesCount.
+		This method is for use with multicomponent diffusion, and SetSpeciesSaveOn must be set to true.
+	SetIthConcentration(int i, std::vector<double>& c)--Sets the ith component concentration; done after
+		transport calculations and before RunCells calculation. Total number of components is retrieved 
+		with GetComponentCount. SetIthConcentration must be run for every component before RunCells is called.
+	SetIthConcentration(int i, std::vector<double>& c)--Sets the ith aqueous species concentration; done after
+		transport calculations and before RunCells calculation. Total number of aqueous species is 
+		retrieved with GetSpeciesCount. This method is for use with multicomponent diffusion, 
+		and SetSpeciesSaveOn must be set to true. SetIthSpeciesConcentration must be run for every aqueous
+		species before RunCells is called.
+		
+	Fortran versions are
+	RM_GetIthConcentration(id, i, c)
+	RM_GetIthSpeciesConcentration(id, i, c)
+	RM_SetIthConcentration(id, i, c)
+	RM_SetIthSpeciesConcentration(id, i, c)
+
+  	-----------------
+	April 14, 2023
+  	-----------------
+	PhreeqcRM: Added new methods to simplify setting initial conditions.
+	
+	New initial conditions methods:
+	InitialEquilibriumPhases2Module(equilibrium_phases);
+	InitialExchanges2Module(exchanges);
+	InitialGasPhases2Module(gas_phases);
+	InitialKinetics2Module(kinetics);
+	InitialSolutions2Module(solutions);
+	InitialSolidSolutions2Module(solid_solutions);
+	InitialSurfaces2Module(surfaces);
+	
+	These methods are an alternative to InitialPhreeqc2Module, which used a 7 x nxyz array to
+	set all initial conditions in one method call. The new methods set only one reactant at a
+	time, and all methods use a single array of index numbers (referring to definitions in 
+	the InitialPhreeqc instance) of length nxyz (the number of user grid cells). The methods
+	copy definitions from the InitialPhreeqc instance to define initial conditions in the
+	model cells.
+	
+	Fortran implementation is as follows:
+	RM_InitialEquilibriumPhases2Module(id, equilibrium_phases);
+	RM_InitialExchanges2Module(id, exchanges);
+	RM_InitialGasPhases2Module(id, gas_phases);
+	RM_InitialKinetics2Module(id, kinetics);
+	RM_InitialSolutions2Module(id, solutions);
+	RM_InitialSolidSolutions2Module(id, solid_solutions);
+	RM_InitialSurfaces2Module(id, surfaces);
+
+  	-----------------
+	February 28, 2023
+  	-----------------
+	PhreeqcRM: 	Revised names for PhreeqcRM test case source and output 
+	files (Tests subdirectory of distribution). Added tests SimpleAdvect_cpp,  
+    SimpleAdvect_c and SimpleAdvect_f90. All transport results are the same for
+	Advect_cpp, Advect_c, and Advect_f90, SimpleAdvect_cpp,  
+    SimpleAdvect_c and SimpleAdvect_f90; however, the SimpleAdvect cases use
+    a minimal set of method calls, whereas the other cases demonstrate most
+    of the features of PhreeqcRM. 	
+
+  	-----------------
+	February 26, 2023
+  	-----------------
+	PhreeqcRM: 	Added method InitializeYAML to initialize a PhreeqcRM
+	instance.
+	
+	It is possible to use a YAML  file to initialize the PhreeqcRM instance. 
+	If a GUI is used to define model input, a YAML file could be used to 
+	transfer the data from the GUI to a PhreeqcRM instance. The YAML file 
+	contains names of PhreeqcRM	methods and associated data, for example:
+	
+	RunFile:
+      workers: true
+      initial_phreeqc: true
+      utility: true
+      chemistry_name: advect.pqi
+		
+	InitializeYAML can be used to process the directives defined in 
+	the YAML file. The method InitializeYAML is equivalent to BMI_Initialize.
+	
+	A C++ class named YAMLPhreeqcRM is included in the Tests subdirectory
+	of the PhreeqcRM distribution, which provides the capability to generate
+	a PhreeqcRM YAML file. The file WriteYAMLFile.cpp generates a YAML file
+	and advection_bmi_cpp.cpp reads and processes the file to initialize
+	a PhreeqcRM instance. 
+
+  	-----------------
+	February 26, 2023
+  	-----------------
+	PhreeqcRM: Added a BMI (Basic Model Interface) for C++ and Fortran. 
+	The interface is a repackaging of the available methods of 
+	PhreeqcRM. All PhreeqcRM methods are available in addition
+	to the BMI methods.
+	
+	New capabilities include (1) the capability to
+	retrieve units for the variables for BMI_GetValues and BMI_SetValues,
+	(2) the capability to use YAML (YAML ain't Markup Language)
+	to initialize a PhreeqcRM instance with the method BMI_Initialize
+	(which is equivalent to the method InitializeYAML), and (3) the availability
+	of pointers that always point to current variable values. 
+	
+	The YAML capability would be especially useful if a GUI (Graphical User Interface)
+	is used to set up model initial conditions. The GUI could write a YAML file
+	that contains directives for PhreeqcRM methods that need to be run and 
+	the corresonding data needed to initialize a PhreeqcRM instance--for example, 
+	setting units; running a PHREEQC input	file to define initial and 
+	boundary conditions; distribution of initial conditions to the model cells; 
+	setting initial porosity, saturation, temperature, and pressure. 
+	When a PhreeqcRM instance is created by the simulator, it can process 
+	the YAML file with BMI_Initialize to execute the specified PhreeqcRM methods 
+	to apply the data specified in the YAML file. 
+	
+	The following represents the way BMI methods would be used to implement
+	a sequential, noniterative transport calculation:
+	
+	    PhreeqcRM phreeqc_rm(nxyz, nthreads);
+        phreeqc_rm.Initialize("myfile.yaml");
+        int ncomps;
+        phreeqc_rm.GetValue("ComponentCount", &ncomps);
+        int ngrid;
+        phreeqc_rm.GetValue("GridCellCount", ngrid);
+        std::vector c(ngrid*ncomps, 0.0);
+        phreeqc_rm.GetValue("Concentrations", c.data());
+        phreeqc_rm.SetValue("TimeStep", 86400);
+        for(double time = 0; time < 864000; time+=86400)
+        {
+            // Take a transport time step here and update the vector c.
+			your_transport(c);
+            phreeqc_rm.SetValue("Time", time);
+            phreeqc_rm.SetValue("Concentrations", c.data());
+            phreeqc_rm.Update();
+            phreeqc_rm.GetValue("Concentrations", c.data());
+        }
+		
+	The set of BMI methods is as follows:
+	
+	std::string GetComponentName()
+		Returns "PhreeqcRM".
+		
+	double GetCurrentTime()
+		Returns current time that has been set by the user.
+		
+	double GetEndTime()
+		Returns current time plus the time step.
+		
+	int GetInputItemCount()
+		Returns the number of variables that it is possible to set
+		with SetValue.
+		
+	std::vector<std::string> GetInputVarNames()
+		Returns a list of the names of variables that can be set
+		with SetValue.
+		
+	int GetOutputItemCount()
+		Returns the number of variables that it is possible to retrieve
+		with GetValue.
+		
+	std::vector<std::string> GetOutputVarNames()
+		Returns a list of the names of variables that can be retrieved
+		with GetValue.
+		
+	double GetTimeStep()
+		Returns the current time step that has been set by the user.
+		
+	std::string GetTimeUnits()
+		Returns "seconds".
+		
+	void GetValue(std::string name, void* dest)
+		Returns a value or vector of values for the variable identified by name
+		
+	void GetValuePtr(std::string name, void* dest)
+		Returns a pointer to current values of a variable. This method
+		is available for selected variables.
+		
+	int GetVarItemsize(std::string name)
+		Returns the number of bytes needed for one element of the variable
+		identified by name.
+		
+	int GetVarNbytes(std::string name)
+		Returns the total number of bytes neded to store the value or vector
+		of values identified by name.
+		
+	std::string GetVarType(std::string name)
+		Returns the type of the variable identified by name: "int", "double", or
+		"string".
+		
+	std::string GetVarUnits(std::string name)	
+		Returns the units associated with the variable identified by name.
+		
+	void Initialize(std::string config_file)
+		Same as InitializeYAML discussed above.
+
+	void SetValue(std::string name, void* src)
+		Sets the value or vector of values for the variable identified by name.
+		
+	void Update(void)
+		Calculates chemical reactions for a time step. It is equivalent to
+		the method RunCells. Equilibrium will be calculated between the solution 
+		and all equilibrium reactants (EQUILIBRIUM_PHASES, EXCHANGE, etc), and
+		KINETICS will be integrated for the time step.
+		
+	BMI is implemented in Fortran with USE BMIPhreeqcRM. Methods are nemed with a
+	prefix "bmif" and have an additional initial argument to identify the instance of
+	BMIPhreeqcRM that is being used. 
+		
+  	-----------------
+	February 26, 2023
+  	-----------------
+	PHREEQC: Fixed bug with Basic functions PR_P and PR_PHI. Values
+	were incorrect after the first step when INCREMENTAL_REACTIONS
+	was set to true.
+	
+	-----------------
+	February 25, 2023
+  	-----------------
+	ALL PROGRAMS: Added the latest version of the database Thermoddem to 
+	the distributions of PHREEQC programs. The database was downloaded
+	from https://thermoddem.brgm.fr/.
+	
+	-----------------
+	March 23, 2022
+  	-----------------
+	PHREEQC: "MacInnes" was misspelled in one of the warning messages.
+
+  	-----------------
+	December 18, 2021
+	-----------------
+	PHREEQC: Fixed transport bug where the end cell should not have
+	been processed in part of the calculation.
+
 Version 3.7.3: December  2, 2021
+
   	-----------------
 	November 27, 2021
 	-----------------
@@ -4923,7 +5356,7 @@ End of Features not documented in WRIR 99-4259.
 ************************************************************
 
 ------------------------------------------------------------
-Version 3.7.3: December  2, 2021
+Version @PHREEQC_VER@: @PHREEQC_DATE@
 ------------------------------------------------------------
         --------
         svn 5570

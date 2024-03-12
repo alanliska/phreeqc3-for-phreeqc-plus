@@ -1,3 +1,6 @@
+#ifdef DOS
+#include <windows.h>
+#endif
 #include "Phreeqc.h"
 
 #include "NameDouble.h"
@@ -296,9 +299,9 @@ write_banner(void)
 
 	/* version */
 #ifdef NPP
-	len = sprintf(buffer, "* PHREEQC-%s *", "3.7.1");
+	len = snprintf(buffer, sizeof(buffer), "* PHREEQC-%s *", "3.7.1");
 #else
-	len = sprintf(buffer, "* PHREEQC-%s *", "@VERSION@");
+	len = snprintf(buffer, sizeof(buffer), "* PHREEQC-%s *", "@VERSION@");
 #endif
 	indent = (44 - len) / 2;
 	screen_msg(sformatf("%14c║%*c%s%*c║\n", ' ', indent, ' ', buffer,
@@ -316,21 +319,20 @@ write_banner(void)
 			   "              ║       D.L. Parkhurst and C.A.J. Appelo     ║\n");
 	screen_msg(
 			   "              ║                                            ║\n");
-        screen_msg(
-			   "              ║ Special version for Android (aarch64, pie) ║\n");
-        screen_msg(
+	screen_msg(
+			   "              ║   Special version for Android (arm, pie)   ║\n");
+	screen_msg(
 			   "              ║  linked with high performance GMP library  ║\n");
-        screen_msg(
+	screen_msg(
 			   "              ║     compiled by A. Liska & V. Ruzickova    ║\n");
 	screen_msg(
-			   "              ║                                            ║\n");
-
+			   "              ║                                            ║\n");		   
 
 	/* date */
 #ifdef NPP
-	len = sprintf(buffer, "%s", "May 7, 2022");
+	len = snprintf(buffer, sizeof(buffer), "%s", "March 12, 2024");
 #else
-	len = sprintf(buffer, "%s", "@VER_DATE@");
+	len = snprintf(buffer, sizeof(buffer), "%s", "@VER_DATE@");
 #endif
 	indent = (44 - len) / 2;
 	screen_msg(sformatf("%14c║%*c%s%*c║\n", ' ', indent, ' ', buffer,
@@ -429,7 +431,7 @@ process_file_names(int argc, char *argv[], std::istream **db_cookie,
  */
 		if (log == TRUE)
 		{
-			if (!phrq_io->log_open("/data/data/cz.p/files/phreeqc.log"))
+			if (!phrq_io->log_open("phreeqc.log"))
 			{
 				error_msg("Cannot open log file, phreeqc.log.", STOP);
 			}
@@ -508,14 +510,14 @@ process_file_names(int argc, char *argv[], std::istream **db_cookie,
 		delete local_database_file;
 		user_database = token;
 		output_msg(sformatf("D.L. Parkhurst, C.A.J. Apello: PHREEQC version 3.7.3. \n"));
-		output_msg(sformatf("Special version for Android (aarch64, pie) linked with high performance GMP library. \n"));
-		output_msg(sformatf("Compiled May 7, 2022 by A. Liska & V. Ruzickova. \n"));
+		output_msg(sformatf("Special version for Android (arm, pie) linked with high performance GMP library. \n"));
+		output_msg(sformatf("Compiled May 12, 2024 by A. Liska & V. Ruzickova. \n"));
 		screen_msg(sformatf("Database file: %s\n\n", token.c_str()));
 		db_file = token;
 		output_msg(sformatf("   Input file: %s\n", in_file.c_str()));
 		output_msg(sformatf("  Output file: %s\n", out_file.c_str()));
 #ifdef NPP
-		output_msg(sformatf("Using PHREEQC: version 3.7.3, compiled May 7, 2022\n"));
+		output_msg(sformatf("Using PHREEQC: version 3.7.3, compiled March 12, 2024\n"));
 #endif
 		output_msg(sformatf("Database file: %s\n\n", token.c_str()));
 #ifdef NPP

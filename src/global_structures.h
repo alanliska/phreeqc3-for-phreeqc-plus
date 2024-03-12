@@ -5,10 +5,16 @@
 /* ----------------------------------------------------------------------
  *   #define DEFINITIONS
  * ---------------------------------------------------------------------- */
-#ifndef NAN
-#   define NAN -99999999
+#if !defined(NAN)
+#  if defined(_MSC_VER) && (_MSC_VER <= 1700) // VS2012
+//   https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-170     
+#    include <limits>
+#    define NAN std::numeric_limits<double>::signaling_NaN()
+#  else
+#    define NAN nan("1")
+#  endif
 #endif
-#define MISSING -9999.999            
+#define MISSING -9999.999
 #include "NA.h"   /* NA = not available */
 
 #define F_C_MOL 96493.5			/* C/mol or joule/volt-eq */
@@ -715,6 +721,7 @@ public:
 		dw_a2 = 0;
 		dw_a_visc = 0;   // viscosity correction of SC
 		dw_t_SC = 0;     // contribution to SC, for calc'ng transport number with BASIC
+		dw_t_visc = 0;   // contribution to viscosity
 		dw_corr = 0;	 // dw corrected for TK and mu
 		erm_ddl = 0;     // enrichment factor in DDL
 		equiv = 0;       // equivalents in exchange species
@@ -776,6 +783,7 @@ public:
 	LDBLE dw_a2;
 	LDBLE dw_a_visc;
 	LDBLE dw_t_SC;
+	LDBLE dw_t_visc;
 	LDBLE dw_corr;
 	LDBLE erm_ddl;
 	LDBLE equiv;

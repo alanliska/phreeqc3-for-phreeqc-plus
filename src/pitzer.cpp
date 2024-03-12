@@ -52,7 +52,8 @@ pitzer_tidy(void)
 	const char *string1, *string2;
 	int i, j, order;
 	int i0, i1, i2;
-	int count_pos, count_neg, count_neut, count[3], jj;
+	//int count_pos, count_neg, count_neut, count[3], jj;
+	int count_neut, count[3], jj;
 	LDBLE z0, z1;
 	class pitz_param *pzp_ptr;
 	class theta_param *theta_param_ptr;
@@ -129,7 +130,7 @@ pitzer_tidy(void)
 	{
 		for (j = i + 1; j < count_cations; j++)
 		{
-			sprintf(line, "%s %s 1", spec[i]->name, spec[j]->name);
+			snprintf(line, max_line, "%s %s 1", spec[i]->name, spec[j]->name);
 			pzp_ptr = pitz_param_read(line, 2);
 			pzp_ptr->type = TYPE_ETHETA;
 			size_t count_pitz_param = pitz_params.size();
@@ -141,7 +142,7 @@ pitzer_tidy(void)
 	{
 		for (j = i + 1; j < 2 * (int)s.size() + count_anions; j++)
 		{
-			sprintf(line, "%s %s 1", spec[i]->name, spec[j]->name);
+			snprintf(line, max_line, "%s %s 1", spec[i]->name, spec[j]->name);
 			pzp_ptr = pitz_param_read(line, 2);
 			pzp_ptr->type = TYPE_ETHETA;
 			size_t count_pitz_param = pitz_params.size();
@@ -214,7 +215,7 @@ pitzer_tidy(void)
 	if (mcb0 == NULL && mcb1 == NULL && mcc0 == NULL && ICON == TRUE)
 	{
 		error_string = sformatf(
-				"No KCl interaction parameters, turning off MacInnis scaling.");
+				"No KCl interaction parameters, turning off MacInnes scaling.");
 		warning_msg(error_string);
 		ICON = FALSE;
 	}
@@ -339,12 +340,13 @@ pitzer_tidy(void)
 			i0 = pitz_params[i]->ispec[0];
 			i1 = pitz_params[i]->ispec[1];
 			i2 = pitz_params[i]->ispec[2];
-			count_pos = count_neg = count_neut = 0;
+			//count_pos = count_neg = count_neut = 0;
+			count_neut = 0;
 			for (j = 0; j <= 2; j++)
 			{
 				if (spec[pitz_params[i]->ispec[j]]->z > 0)
 				{
-					count_pos++;
+					//count_pos++;
 				}
 				if (spec[pitz_params[i]->ispec[j]]->z == 0)
 				{
@@ -352,7 +354,7 @@ pitzer_tidy(void)
 				}
 				if (spec[pitz_params[i]->ispec[j]]->z < 0)
 				{
-					count_neg++;
+					//count_neg++;
 				}
 			}
 			/* All neutral */

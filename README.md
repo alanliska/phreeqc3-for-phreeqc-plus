@@ -2,23 +2,26 @@
 
 ## Changes in this fork
 
-* the working directory is /data/data/cz.p/files/ (PHREEQC plus app)
-* added the stamp defining the release
+* cross compilation for the PHREEQC plus app
+* added the stamp defining the release (class_main.cpp)
 
-## Compilation
+## Cross-compilation
 
-* set paths to source directories and to Release directory (create if not present)
-* add entry -> ANDROID_ABI arm64-v8a, armeabi-v7a, x86_64, x86 (the desired architecture)
-* add entry -> ANDROID_NDK path to Android NDK r10e
-* configure - choose cmake toolchain
-* tick PHREEQC_USE_GMP
-* configure
-* fill in the red fields - path to gmp.h and libgmp.a for the same architecture
-* configure
-* generate
-* open the Release directory, fild all flags.make and link.txt
-* add -pie to all these file
-* cd Release & mingw32-make (or make - in WSL)
+export CC=/path/to/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi33-clang
+export CXX=/path/to/android-ndk/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi33-clang++
+
+* cross compile libgmp (optional) - get the sources from https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz, untar, configure & install
+./configure --with-pic --host=armv7a-linux-androideabi33 --prefix=/path/to/install/gmp_arm
+
+* switch to phreeqc sources, configure
+
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/phreeqc_arm -DPHRQC_USE_GMP=ON -DGMP_LIBRARY=/path/to/gmp_arm/lib/libgmp.a -DGMP_INCLUDE_PATH=/path/to/gmp_arm/include
+
+* change -rdynamic to -fPIC -static-libstdc++ in link.txt
+* change CXX_FLAGS = -fPIC in flags.make
+make install
+
+* for the other architectures just change the cross-compiler (aarch64-linux-android33-clang, aarch64-linux-android33-clang++ / i686-linux-android33-clang, i686-linux-android33-clang++, x86_64-linux-android33-clang, x86_64-linux-android33-clang++)
 
 # ORIGINAL DESCRIPTION:
 
