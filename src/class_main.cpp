@@ -299,7 +299,7 @@ write_banner(void)
 
 	/* version */
 #ifdef NPP
-	len = snprintf(buffer, sizeof(buffer), "* PHREEQC-%s *", "3.7.1");
+	len = sprintf(buffer, "* PHREEQC-%s *", "3.7.3");
 #else
 	len = snprintf(buffer, sizeof(buffer), "* PHREEQC-%s *", "@VERSION@");
 #endif
@@ -320,7 +320,7 @@ write_banner(void)
 	screen_msg(
 			   "              ║                                            ║\n");
 	screen_msg(
-			   "              ║   Special version for Android (arm, pie)   ║\n");
+			   "              ║ Special version for Android (x86_64, pie)  ║\n");
 	screen_msg(
 			   "              ║  linked with high performance GMP library  ║\n");
 	screen_msg(
@@ -330,7 +330,7 @@ write_banner(void)
 
 	/* date */
 #ifdef NPP
-	len = snprintf(buffer, sizeof(buffer), "%s", "March 12, 2024");
+	len = sprintf(buffer, "%s", "April 16, 2024, with bug-fixes and new items");
 #else
 	len = snprintf(buffer, sizeof(buffer), "%s", "@VER_DATE@");
 #endif
@@ -510,14 +510,14 @@ process_file_names(int argc, char *argv[], std::istream **db_cookie,
 		delete local_database_file;
 		user_database = token;
 		output_msg(sformatf("D.L. Parkhurst, C.A.J. Apello: PHREEQC version 3.7.3. \n"));
-		output_msg(sformatf("Special version for Android (arm, pie) linked with high performance GMP library. \n"));
-		output_msg(sformatf("Compiled May 12, 2024 by A. Liska & V. Ruzickova. \n"));
+		output_msg(sformatf("Special version for Android (x86_64, pie) linked with high performance GMP library. \n"));
+		output_msg(sformatf("Compiled April 16, 2024 by A. Liska & V. Ruzickova. \n"));
 		screen_msg(sformatf("Database file: %s\n\n", token.c_str()));
 		db_file = token;
 		output_msg(sformatf("   Input file: %s\n", in_file.c_str()));
 		output_msg(sformatf("  Output file: %s\n", out_file.c_str()));
 #ifdef NPP
-		output_msg(sformatf("Using PHREEQC: version 3.7.3, compiled March 12, 2024\n"));
+		output_msg(sformatf("Using PHREEQC: version 3.7.3, compiled March 14, 2024, with bug-fixes and new items\n"));
 #endif
 		output_msg(sformatf("Database file: %s\n\n", token.c_str()));
 #ifdef NPP

@@ -11,7 +11,7 @@ export CC=/path/to/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-
 export CXX=/path/to/android-ndk/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi33-clang++
 
 * cross compile libgmp (optional) - get the sources from https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz, untar, configure & install
-./configure --with-pic --host=armv7a-linux-androideabi33 --prefix=/path/to/install/gmp_arm
+./configure --with-pic --with-cxx --host=armv7a-linux-androideabi33 --prefix=/path/to/install/gmp_arm
 
 * switch to phreeqc sources, configure
 
